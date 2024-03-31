@@ -3,7 +3,7 @@ import time
 class dp_agent( ):
     mdp=None 
     
-    def __init__(self,mdp,b,t, epsilon=0.000001): #and here...
+    def __init__(self,mdp,b=[(1,1)],t=[], epsilon=0.1): #and here...
         self.mdp=mdp
         self.states = mdp.get_states()
         self.v = { s: 0.0 for s in self.states } 
@@ -52,7 +52,7 @@ class dp_agent( ):
         #main solving loop
         i=0
         while i==0 or self.get_width(self.v, self.v_bis) > self.epsilon :
-            i=1
+            i+=1
             self.v_bis = self.v.copy()
             for s in self.states:    
                 self.update(s)

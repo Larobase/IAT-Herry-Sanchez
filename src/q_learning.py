@@ -5,18 +5,20 @@ import time
 
 class q_agent:
     mdp=None
-    def __init__(self, mdp,t):# and here...
+    def __init__(self, mdp,t,ep=10000):# and here...
         self.mdp = mdp
         self.q_values = defaultdict(lambda: defaultdict(float))
-        self.alpha = 0.1
+        self.alpha = 0
         self.gamma = mdp.get_discount_factor()
         self.epsilon = 0.1
         self.vInitUP = []
         self.vInitDOWN = []
         self.vInitRIGHT = []
         self.vInitLEFT = []
-        self.state_visits = [[0 for j in range(self.mdp.width)] for i in range(self.mdp.height)]
+        self.states = mdp.get_states()
+        self.state_visits = { s: 0 for s in self.states } 
         self.t = t
+        self.episode = ep
 
 
     def greedy(self, s):
@@ -31,10 +33,11 @@ class q_agent:
     def solve(self):
         # main solving loop
         debut = time.time()
-        for episode in range(10):
+        for episode in range(self.episode):
             s = self.mdp.get_initial_state()
+            print("episode",episode)
             while not self.mdp.is_terminal(s):
-                self.state_visits[-1*s[1]-1][s[0]] += 1 # Add this line
+                self.state_visits[s] += 1 # Add this line
                 a = self.greedy(s)
                 next_s, r= self.mdp.execute(s, a) 
                 delta = self.get_delta(r, self.q_values[s][a], s, next_s)
@@ -61,6 +64,10 @@ class q_agent:
     def state_value(self, state):
         # get the value of a state
         return max(self.q_values[state].values())
+        
+    def get_value(self,s):
+        #return the value of a specific state s according to value function v
+        return self.state_visits[s]
 
     def get_q_value(self,state, action):
         return self.q_values[state][action]
@@ -88,8 +95,9 @@ class q_agent:
         
     def plot_time(self):
         plt.plot(self.t)
-        plt.xlabel('Iteration')
+        plt.xlabel('quantité cases bloquantes')
         plt.ylabel('Time')
-        plt.title('Time')
+        plt.yscale('lin')  # Set the scale of the y axis to logarithmic
+        plt.title('Time DP')
         plt.show()
     
